@@ -1,0 +1,365 @@
+{
+  "graph": {
+    "colony_id": "portability-example",
+    "objective": "Assess Windows portability with source-linked evidence",
+    "nodes": [
+      {
+        "id": "dependency-audit",
+        "objective": "Produce the dependency-audit report for Windows portability",
+        "rationale": "Bounded evidence collection before proposing mutations",
+        "dependencies": [],
+        "expected_outputs": [
+          "dependency-audit.json"
+        ],
+        "acceptance": [
+          "Every finding has a source reference"
+        ],
+        "context": {
+          "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "relevant_paths": [
+            "Cargo.toml",
+            "src"
+          ],
+          "symbols": [],
+          "ontology_entities": [
+            "dependency-audit"
+          ],
+          "architectural_constraints": [
+            "Do not modify repository files"
+          ],
+          "trusted_context": [],
+          "retrieved_untrusted": [],
+          "input_tokens": 2000
+        },
+        "demand": {
+          "reasoning": 0.2,
+          "coding": 0.2,
+          "research": 0.9,
+          "structured_output": 0.8,
+          "tool_use": 0.0,
+          "output_tokens": 1000
+        },
+        "classification": "INTERNAL",
+        "mutation": null,
+        "relational_density": 0.1,
+        "uncertainty": 0.2,
+        "consequence": 0.2,
+        "budget": {
+          "money_micros": 100000,
+          "tokens": 10000,
+          "calls": 1
+        },
+        "estimated_ms": 1000,
+        "verification": {
+          "deterministic_checks": [
+            "report-schema",
+            "source-references"
+          ],
+          "semantic_review": true
+        }
+      },
+      {
+        "id": "platform-audit",
+        "objective": "Produce the platform-audit report for Windows portability",
+        "rationale": "Bounded evidence collection before proposing mutations",
+        "dependencies": [],
+        "expected_outputs": [
+          "platform-audit.json"
+        ],
+        "acceptance": [
+          "Every finding has a source reference"
+        ],
+        "context": {
+          "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "relevant_paths": [
+            "Cargo.toml",
+            "src"
+          ],
+          "symbols": [],
+          "ontology_entities": [
+            "platform-audit"
+          ],
+          "architectural_constraints": [
+            "Do not modify repository files"
+          ],
+          "trusted_context": [],
+          "retrieved_untrusted": [],
+          "input_tokens": 2000
+        },
+        "demand": {
+          "reasoning": 0.2,
+          "coding": 0.9,
+          "research": 0.2,
+          "structured_output": 0.8,
+          "tool_use": 0.0,
+          "output_tokens": 1000
+        },
+        "classification": "INTERNAL",
+        "mutation": null,
+        "relational_density": 0.1,
+        "uncertainty": 0.2,
+        "consequence": 0.2,
+        "budget": {
+          "money_micros": 100000,
+          "tokens": 10000,
+          "calls": 1
+        },
+        "estimated_ms": 1000,
+        "verification": {
+          "deterministic_checks": [
+            "report-schema",
+            "source-references"
+          ],
+          "semantic_review": true
+        }
+      },
+      {
+        "id": "test-analysis",
+        "objective": "Produce the test-analysis report for Windows portability",
+        "rationale": "Bounded evidence collection before proposing mutations",
+        "dependencies": [],
+        "expected_outputs": [
+          "test-analysis.json"
+        ],
+        "acceptance": [
+          "Every finding has a source reference"
+        ],
+        "context": {
+          "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "relevant_paths": [
+            "Cargo.toml",
+            "src"
+          ],
+          "symbols": [],
+          "ontology_entities": [
+            "test-analysis"
+          ],
+          "architectural_constraints": [
+            "Do not modify repository files"
+          ],
+          "trusted_context": [],
+          "retrieved_untrusted": [],
+          "input_tokens": 2000
+        },
+        "demand": {
+          "reasoning": 0.9,
+          "coding": 0.2,
+          "research": 0.2,
+          "structured_output": 0.8,
+          "tool_use": 0.0,
+          "output_tokens": 1000
+        },
+        "classification": "INTERNAL",
+        "mutation": null,
+        "relational_density": 0.1,
+        "uncertainty": 0.2,
+        "consequence": 0.2,
+        "budget": {
+          "money_micros": 100000,
+          "tokens": 10000,
+          "calls": 1
+        },
+        "estimated_ms": 1000,
+        "verification": {
+          "deterministic_checks": [
+            "report-schema",
+            "source-references"
+          ],
+          "semantic_review": true
+        }
+      },
+      {
+        "id": "synthesis",
+        "objective": "Produce the synthesis report for Windows portability",
+        "rationale": "Bounded evidence collection before proposing mutations",
+        "dependencies": [
+          "dependency-audit",
+          "platform-audit",
+          "test-analysis"
+        ],
+        "expected_outputs": [
+          "synthesis.json"
+        ],
+        "acceptance": [
+          "Every finding has a source reference"
+        ],
+        "context": {
+          "source_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "relevant_paths": [
+            "Cargo.toml",
+            "src"
+          ],
+          "symbols": [],
+          "ontology_entities": [
+            "synthesis"
+          ],
+          "architectural_constraints": [
+            "Do not modify repository files"
+          ],
+          "trusted_context": [],
+          "retrieved_untrusted": [],
+          "input_tokens": 2000
+        },
+        "demand": {
+          "reasoning": 0.9,
+          "coding": 0.2,
+          "research": 0.2,
+          "structured_output": 0.8,
+          "tool_use": 0.0,
+          "output_tokens": 1000
+        },
+        "classification": "INTERNAL",
+        "mutation": null,
+        "relational_density": 0.1,
+        "uncertainty": 0.2,
+        "consequence": 0.2,
+        "budget": {
+          "money_micros": 100000,
+          "tokens": 10000,
+          "calls": 1
+        },
+        "estimated_ms": 1000,
+        "verification": {
+          "deterministic_checks": [
+            "report-schema",
+            "source-references"
+          ],
+          "semantic_review": true
+        }
+      }
+    ],
+    "policy": {
+      "allowed_providers": [
+        "example-local"
+      ],
+      "max_classification": "LOCAL_ONLY",
+      "allow_mutation": false,
+      "require_human_approval": true,
+      "max_workers": 3,
+      "max_depth": 0,
+      "deadline_ms": 4102444800000,
+      "budget": {
+        "money_micros": 1000000,
+        "tokens": 100000,
+        "calls": 10
+      }
+    }
+  },
+  "ontology": {
+    "revision": "example-ontology-1",
+    "relations": [],
+    "locked_entities": []
+  },
+  "registry": {
+    "resources": [
+      {
+        "provider": "example-local",
+        "model": "research",
+        "local": true,
+        "classifications": [
+          "PUBLIC",
+          "INTERNAL",
+          "CONFIDENTIAL",
+          "RESTRICTED",
+          "LOCAL_ONLY"
+        ],
+        "declared": {
+          "reasoning": 0.5,
+          "coding": 0.3,
+          "research": 0.95,
+          "structured_output": 0.9,
+          "tool_use": 0.5
+        },
+        "benchmarked": {
+          "reasoning": 0.5,
+          "coding": 0.3,
+          "research": 0.95,
+          "structured_output": 0.9,
+          "tool_use": 0.5
+        },
+        "observed": null,
+        "context_window": 32000,
+        "max_output": 8000,
+        "latency_ms": 1000,
+        "concurrency": 2,
+        "available": true,
+        "remaining_calls": 100,
+        "input_micros_per_million": 1000,
+        "output_micros_per_million": 2000,
+        "shadow_price": 1.0
+      },
+      {
+        "provider": "example-local",
+        "model": "code",
+        "local": true,
+        "classifications": [
+          "PUBLIC",
+          "INTERNAL",
+          "CONFIDENTIAL",
+          "RESTRICTED",
+          "LOCAL_ONLY"
+        ],
+        "declared": {
+          "reasoning": 0.6,
+          "coding": 0.95,
+          "research": 0.3,
+          "structured_output": 0.9,
+          "tool_use": 0.5
+        },
+        "benchmarked": {
+          "reasoning": 0.6,
+          "coding": 0.95,
+          "research": 0.3,
+          "structured_output": 0.9,
+          "tool_use": 0.5
+        },
+        "observed": null,
+        "context_window": 32000,
+        "max_output": 8000,
+        "latency_ms": 1000,
+        "concurrency": 2,
+        "available": true,
+        "remaining_calls": 100,
+        "input_micros_per_million": 1000,
+        "output_micros_per_million": 2000,
+        "shadow_price": 1.0
+      },
+      {
+        "provider": "example-local",
+        "model": "reasoning",
+        "local": true,
+        "classifications": [
+          "PUBLIC",
+          "INTERNAL",
+          "CONFIDENTIAL",
+          "RESTRICTED",
+          "LOCAL_ONLY"
+        ],
+        "declared": {
+          "reasoning": 0.95,
+          "coding": 0.6,
+          "research": 0.5,
+          "structured_output": 0.9,
+          "tool_use": 0.5
+        },
+        "benchmarked": {
+          "reasoning": 0.95,
+          "coding": 0.6,
+          "research": 0.5,
+          "structured_output": 0.9,
+          "tool_use": 0.5
+        },
+        "observed": null,
+        "context_window": 32000,
+        "max_output": 8000,
+        "latency_ms": 1000,
+        "concurrency": 2,
+        "available": true,
+        "remaining_calls": 100,
+        "input_micros_per_million": 1000,
+        "output_micros_per_million": 2000,
+        "shadow_price": 1.0
+      }
+    ]
+  }
+}

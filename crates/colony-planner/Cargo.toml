@@ -1,0 +1,11 @@
+[package]
+name = "colony-planner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+colony-core.workspace = true
+colony-policy.workspace = true

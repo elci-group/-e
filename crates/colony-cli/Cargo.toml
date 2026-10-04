@@ -1,0 +1,20 @@
+[package]
+name = "colony-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+colony-core.workspace = true
+colony-policy.workspace = true
+colony-provider.workspace = true
+colony-planner.workspace = true
+colony-allocator.workspace = true
+colony-runtime.workspace = true
+
+[[bin]]
+name = "colony"
+path = "src/main.rs"

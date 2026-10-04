@@ -1,0 +1,25 @@
+[[file]]
+path = "README.md"
+required = true
+[[file]]
+path = "docs/architecture.md"
+required = true
+[[file]]
+path = "crates/colony-runtime/src/lib.rs"
+forbid_regex = ["unimplemented!", "todo!"]
+[[command]]
+name = "format"
+cmd = ["cargo", "fmt", "--all", "--", "--check"]
+[[command]]
+name = "tests"
+cmd = ["cargo", "test", "--workspace", "--offline"]
+timeout_secs = 120
+[[command]]
+name = "lint"
+cmd = ["cargo", "clippy", "--workspace", "--all-targets", "--offline", "--", "-D", "warnings"]
+timeout_secs = 120
+[[command]]
+name = "simulation"
+cmd = ["cargo", "run", "--offline", "-q", "--", "simulate", "examples/request.json"]
+stdout_contains = ["simulation_complete"]
+timeout_secs = 60

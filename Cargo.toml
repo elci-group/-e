@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.85"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+colony-core = { path = "crates/colony-core" }
+colony-policy = { path = "crates/colony-policy" }
+colony-provider = { path = "crates/colony-provider" }
+colony-planner = { path = "crates/colony-planner" }
+colony-allocator = { path = "crates/colony-allocator" }
+colony-runtime = { path = "crates/colony-runtime" }
+colony-cli = { path = "crates/colony-cli" }
