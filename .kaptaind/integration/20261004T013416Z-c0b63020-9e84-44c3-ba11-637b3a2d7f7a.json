@@ -1,0 +1,533 @@
+{
+  "generated_at": "2026-10-04T01:34:16.727863800Z",
+  "repository": "/home/sal/:e/",
+  "target": "origin/main",
+  "source": "main",
+  "hybreed": {
+    "analysis_version": "hybreed-analysis/2",
+    "confidence": 0.95,
+    "conflict_class": null,
+    "decision": "Merge",
+    "evidence": [
+      {
+        "description": "merge base of origin/main and main is 8576c1ef2de9ea32e422c0a598720aa9a0df3367",
+        "origin": "ProvenFact"
+      },
+      {
+        "description": "origin/main has 0 changed file(s) and is 0 commit(s) ahead of the merge base",
+        "origin": "ProvenFact"
+      },
+      {
+        "description": "main has 27 changed file(s) and is 1 commit(s) ahead of the merge base",
+        "origin": "ProvenFact"
+      },
+      {
+        "description": "main changed 19 non-Rust file(s); no symbol model applied (fail closed)",
+        "origin": "DeterministicInference"
+      },
+      {
+        "description": "risk score 25.0/100 (medium) from 8 factors",
+        "origin": "DeterministicInference"
+      },
+      {
+        "description": "no file-level overlap between the two sides; changes are disjoint",
+        "origin": "DeterministicInference"
+      }
+    ],
+    "graph": {
+      "edges": [
+        {
+          "from": "base",
+          "kind": "AncestorOf",
+          "to": "side:origin/main"
+        },
+        {
+          "from": "base",
+          "kind": "AncestorOf",
+          "to": "side:main"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.cargo/config.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.gitignore"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/status.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/telemetry.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/traces.db"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/version_cache.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptainignore"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:Cargo.lock"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-allocator/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-allocator/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-cli/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-cli/src/main.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-core/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-core/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-planner/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-planner/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-policy/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-policy/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-provider/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-provider/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-runtime/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-runtime/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-runtime/tests/contracts.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:deliver.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:examples/request.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:kaptaind.toml"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "base",
+          "kind": "Commit",
+          "label": "merge-base 8576c1ef"
+        },
+        {
+          "id": "side:origin/main",
+          "kind": "Branch",
+          "label": "origin/main"
+        },
+        {
+          "id": "side:main",
+          "kind": "Branch",
+          "label": "main"
+        },
+        {
+          "id": "file:.cargo/config.toml",
+          "kind": "File",
+          "label": ".cargo/config.toml"
+        },
+        {
+          "id": "file:.gitignore",
+          "kind": "File",
+          "label": ".gitignore"
+        },
+        {
+          "id": "file:.kaptaind/status.json",
+          "kind": "File",
+          "label": ".kaptaind/status.json"
+        },
+        {
+          "id": "file:.kaptaind/telemetry.json",
+          "kind": "File",
+          "label": ".kaptaind/telemetry.json"
+        },
+        {
+          "id": "file:.kaptaind/traces.db",
+          "kind": "File",
+          "label": ".kaptaind/traces.db"
+        },
+        {
+          "id": "file:.kaptaind/version_cache.json",
+          "kind": "File",
+          "label": ".kaptaind/version_cache.json"
+        },
+        {
+          "id": "file:.kaptainignore",
+          "kind": "File",
+          "label": ".kaptainignore"
+        },
+        {
+          "id": "file:Cargo.lock",
+          "kind": "File",
+          "label": "Cargo.lock"
+        },
+        {
+          "id": "file:Cargo.toml",
+          "kind": "File",
+          "label": "Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-allocator/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-allocator/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-allocator/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-allocator/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-cli/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-cli/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-cli/src/main.rs",
+          "kind": "File",
+          "label": "crates/colony-cli/src/main.rs"
+        },
+        {
+          "id": "file:crates/colony-core/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-core/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-core/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-core/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-planner/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-planner/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-planner/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-planner/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-policy/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-policy/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-policy/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-policy/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-provider/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-provider/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-provider/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-provider/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-runtime/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-runtime/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-runtime/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-runtime/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-runtime/tests/contracts.rs",
+          "kind": "File",
+          "label": "crates/colony-runtime/tests/contracts.rs"
+        },
+        {
+          "id": "file:deliver.toml",
+          "kind": "File",
+          "label": "deliver.toml"
+        },
+        {
+          "id": "file:examples/request.json",
+          "kind": "File",
+          "label": "examples/request.json"
+        },
+        {
+          "id": "file:kaptaind.toml",
+          "kind": "File",
+          "label": "kaptaind.toml"
+        }
+      ]
+    },
+    "reasoning": {
+      "judgments": [],
+      "provider": "offline"
+    },
+    "recommended_plan": [
+      "git merge main into the target",
+      "run the configured validation ladder"
+    ],
+    "relationship": "Independent",
+    "risk": {
+      "factors": [
+        {
+          "contribution": 20.0,
+          "detail": "27 files changed across both sides",
+          "name": "change_surface"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 file(s) touched by both sides",
+          "name": "semantic_overlap"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 mechanical conflict(s)",
+          "name": "conflict_density"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 shared dependency file(s)",
+          "name": "dependency_coupling"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 and 1 commits ahead of the merge base respectively",
+          "name": "branch_age"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 symbol(s) removed or reshaped while still referenced",
+          "name": "structural_breakage"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 divergent shared symbol(s), 0 cross-side reference(s)",
+          "name": "symbol_coupling"
+        },
+        {
+          "contribution": 5.0,
+          "detail": "test coverage, provenance quality and security sensitivity are not yet modeled (Phase III+)",
+          "name": "unmodeled_factors"
+        }
+      ],
+      "level": "Medium",
+      "score": 25.0
+    },
+    "risks": [],
+    "semantic": {
+      "cross_references": [],
+      "duplicated_symbols": [],
+      "evidence": [
+        {
+          "description": "main changed 19 non-Rust file(s); no symbol model applied (fail closed)",
+          "origin": "DeterministicInference"
+        }
+      ],
+      "intent": {
+        "left": {
+          "actions": [],
+          "summaries": [],
+          "targets": []
+        },
+        "relation": "Unknown",
+        "right": {
+          "actions": [
+            "Change"
+          ],
+          "summaries": [
+            "chore: apply changes (.cargo, .gitignore, .kaptainignore, +6 more)"
+          ],
+          "targets": [
+            "cargo"
+          ]
+        }
+      },
+      "structural_conflicts": [],
+      "supersession": null,
+      "symbol_overlaps": [],
+      "unsupported_files": [
+        "main:.cargo/config.toml",
+        "main:.gitignore",
+        "main:.kaptaind/status.json",
+        "main:.kaptaind/telemetry.json",
+        "main:.kaptaind/traces.db",
+        "main:.kaptaind/version_cache.json",
+        "main:.kaptainignore",
+        "main:Cargo.lock",
+        "main:Cargo.toml",
+        "main:crates/colony-allocator/Cargo.toml",
+        "main:crates/colony-cli/Cargo.toml",
+        "main:crates/colony-core/Cargo.toml",
+        "main:crates/colony-planner/Cargo.toml",
+        "main:crates/colony-policy/Cargo.toml",
+        "main:crates/colony-provider/Cargo.toml",
+        "main:crates/colony-runtime/Cargo.toml",
+        "main:deliver.toml",
+        "main:examples/request.json",
+        "main:kaptaind.toml"
+      ]
+    },
+    "unresolved_assumptions": [
+      "no hidden coupling beyond file- and symbol-level overlap"
+    ],
+    "validation_status": "not_validated_phase_II_dry_run"
+  },
+  "scrawny": {
+    "cohesion": 0.26857983811626196,
+    "concerns": 6,
+    "max_concerns": 4,
+    "max_review_load": 70,
+    "min_cohesion": 0.55,
+    "passed": false,
+    "reasons": [
+      "review load 90/100 exceeds policy maximum 70",
+      "cohesion 27% is below policy minimum 55%",
+      "6 independent concerns detected, policy maximum is 4"
+    ],
+    "review_load": 90
+  },
+  "emulsify": {
+    "forks": [
+      {
+        "action": "reject",
+        "compatibility": 0.0,
+        "dimensions": [
+          {
+            "dimension": "api",
+            "score": 0.0,
+            "weight": 0.15
+          },
+          {
+            "dimension": "types",
+            "score": 0.0,
+            "weight": 0.1
+          },
+          {
+            "dimension": "dependencies",
+            "score": null,
+            "weight": 0.15
+          },
+          {
+            "dimension": "architecture",
+            "score": 0.0,
+            "weight": 0.15
+          },
+          {
+            "dimension": "behaviour",
+            "score": 0.0,
+            "weight": 0.1
+          },
+          {
+            "dimension": "tests",
+            "score": 0.0,
+            "weight": 0.1
+          },
+          {
+            "dimension": "ownership",
+            "score": 0.0,
+            "weight": 0.05
+          },
+          {
+            "dimension": "lineage",
+            "score": 0.0,
+            "weight": 0.1
+          },
+          {
+            "dimension": "abstraction",
+            "score": 0.0,
+            "weight": 0.1
+          }
+        ],
+        "fluid_class": "immiscible",
+        "name": "source",
+        "path": "/tmp/kaptaind-integration-bf10e9a2-315d-49c3-b4ea-cd3467868bb9/source",
+        "viscosity": 1.0
+      }
+    ],
+    "host": {
+      "files": 1,
+      "languages": {},
+      "name": "host",
+      "path": "/tmp/kaptaind-integration-bf10e9a2-315d-49c3-b4ea-cd3467868bb9/target"
+    }
+  },
+  "recommendation": "Hybreed: Merge; Scrawny: review load 90/100 exceeds policy (70); Emulsify: review; explicit validation required",
+  "persisted": null
+}
