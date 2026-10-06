@@ -1,9 +1,20 @@
 [[file]]
 path = "README.md"
 required = true
+require_line_count = 100
+require_regex = ["## Quickstart", "## Usage", "## Safety invariants", "## Crate map", "## Development"]
 [[file]]
 path = "docs/architecture.md"
 required = true
+require_regex = ["trait|Trait", "Mesut", "Verifier", "InferenceProvider", "SemanticSource", "Preflight", "Threat model"]
+[[file]]
+path = "docs/benchmarks.md"
+required = true
+require_regex = ["rustc \\d+\\.\\d+", "\\| lifecycle \\| dense \\|"]
+[[file]]
+path = "LICENSE"
+required = true
+require_regex = ["^MIT License"]
 [[file]]
 path = "crates/colony-runtime/src/lib.rs"
 forbid_regex = ["unimplemented!", "todo!"]
@@ -23,3 +34,7 @@ name = "simulation"
 cmd = ["cargo", "run", "--offline", "-q", "--", "simulate", "examples/request.json"]
 stdout_contains = ["simulation_complete"]
 timeout_secs = 60
+[[command]]
+name = "benchmarks-build"
+cmd = ["cargo", "bench", "--offline", "--no-run"]
+timeout_secs = 300

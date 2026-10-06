@@ -1,56 +1,454 @@
+// SPDX-License-Identifier: MIT
 use colony_core::*;
-use colony_planner::{plan,Plan};
+use colony_planner::{plan, Plan};
 use colony_provider::Registry;
 use colony_runtime::*;
 use serde::Deserialize;
-#[derive(Deserialize)] struct Request { graph:WorkGraph,ontology:OntologySlice,registry:Registry }
-fn fixture()->Request { serde_json::from_str(include_str!("../../../examples/request.json")).unwrap() }
-fn planned()->(Plan,Registry) { let r=fixture(); (plan(r.graph,r.ontology).unwrap(),r.registry) }
-fn colony()->Colony { let (p,r)=planned(); Colony::new(p,r).unwrap() }
-#[derive(Default)] struct Executor { dispatched:Vec<Dispatch>, cancelled:Vec<String>, reject_cancel:bool }
+#[derive(Deserialize)]
+struct Request {
+    graph: WorkGraph,
+    ontology: OntologySlice,
+    registry: Registry,
+}
+fn fixture() -> Request {
+    serde_json::from_str(include_str!("../../../examples/request.json")).unwrap()
+}
+fn planned() -> (Plan, Registry) {
+    let r = fixture();
+    (plan(r.graph, r.ontology).unwrap(), r.registry)
+}
+fn colony() -> Colony {
+    let (p, r) = planned();
+    Colony::new(p, r).unwrap()
+}
+#[derive(Default)]
+struct Executor {
+    dispatched: Vec<Dispatch>,
+    cancelled: Vec<String>,
+    reject_cancel: bool,
+}
 impl Mesut for Executor {
- fn submit(&mut self,d:&Dispatch)->Result<String> { self.dispatched.push(d.clone()); Ok(d.attempt.to_string()) }
- fn cancel(&mut self,h:&str)->Result<()> { if self.reject_cancel { return Err(Error::new(FailureKind::InfrastructureFailure,"cancel unavailable")); } self.cancelled.push(h.into()); Ok(()) }
+    fn submit(&mut self, d: &Dispatch) -> Result<String> {
+        self.dispatched.push(d.clone());
+        Ok(d.attempt.to_string())
+    }
+    fn cancel(&mut self, h: &str) -> Result<()> {
+        if self.reject_cancel {
+            return Err(Error::new(
+                FailureKind::InfrastructureFailure,
+                "cancel unavailable",
+            ));
+        }
+        self.cancelled.push(h.into());
+        Ok(())
+    }
 }
-struct Checker { pass:bool }
+struct Checker {
+    pass: bool,
+}
 impl Verifier for Checker {
- fn verify(&mut self,u:&WorkUnit,_:&WorkerResult)->Result<Evidence> { Ok(Evidence{work_unit:u.id.clone(),verifier:"trusted-test-verifier".into(),checks:u.verification.deterministic_checks.iter().map(|n|CheckResult{name:n.clone(),passed:self.pass,evidence_ref:"test://check".into()}).collect(),acceptance:u.acceptance.iter().cloned().collect(),consistent:true,semantic_approved:true,timestamp_ms:0}) }
+    fn verify(&mut self, u: &WorkUnit, _: &WorkerResult) -> Result<Evidence> {
+        Ok(Evidence {
+            work_unit: u.id.clone(),
+            verifier: "trusted-test-verifier".into(),
+            checks: u
+                .verification
+                .deterministic_checks
+                .iter()
+                .map(|n| CheckResult {
+                    name: n.clone(),
+                    passed: self.pass,
+                    evidence_ref: "test://check".into(),
+                })
+                .collect(),
+            acceptance: u.acceptance.iter().cloned().collect(),
+            consistent: true,
+            semantic_approved: true,
+            timestamp_ms: 0,
+        })
+    }
 }
-fn result(d:&Dispatch)->WorkerResult { WorkerResult{work_unit:d.unit.id.clone(),provider:d.assignment.provider.clone(),model:d.assignment.model.clone(),usage:Budget{money_micros:0,tokens:1,calls:1},artifacts:d.unit.expected_outputs.iter().map(|name|Artifact{name:name.clone(),reference:"test://artifact".into(),source_sha:d.unit.context.source_sha.clone(),result_sha:d.unit.mutation.as_ref().map(|_|"b".repeat(40)),changed_paths:vec![]}).collect()} }
-#[test] fn ready_only_after_verified_dependencies() {
- let mut c=colony(); let mut x=Executor::default(); assert_eq!(c.ready().len(),3);
- let d=c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); c.receive(d.attempt,result(&d),2).unwrap();
- assert!(!c.ready().contains(&"synthesis".into())); assert!(!c.complete());
- c.verify("dependency-audit",3,&mut Checker{pass:true}).unwrap(); assert!(!c.complete());
- for id in ["platform-audit","test-analysis"] { let d=c.dispatch(id,4,3,false,&mut x).unwrap(); c.receive(d.attempt,result(&d),4).unwrap(); c.verify(id,4,&mut Checker{pass:true}).unwrap(); }
- let d=c.dispatch("synthesis",5,3,false,&mut x).unwrap(); assert_eq!(d.dependency_results.len(),3); c.receive(d.attempt,result(&d),5).unwrap(); c.verify("synthesis",5,&mut Checker{pass:true}).unwrap(); assert!(c.complete());
+fn result(d: &Dispatch) -> WorkerResult {
+    WorkerResult {
+        work_unit: d.unit.id.clone(),
+        provider: d.assignment.provider.clone(),
+        model: d.assignment.model.clone(),
+        usage: Budget {
+            money_micros: 0,
+            tokens: 1,
+            calls: 1,
+        },
+        artifacts: d
+            .unit
+            .expected_outputs
+            .iter()
+            .map(|name| Artifact {
+                name: name.clone(),
+                reference: "test://artifact".into(),
+                source_sha: d.unit.context.source_sha.clone(),
+                result_sha: d.unit.mutation.as_ref().map(|_| "b".repeat(40)),
+                changed_paths: vec![],
+            })
+            .collect(),
+    }
 }
-#[test] fn cycle_rejected() { let mut r=fixture(); r.graph.nodes[0].dependencies.push("synthesis".into()); assert!(plan(r.graph,r.ontology).is_err()); }
-#[test] fn duplicate_and_dangling_ids_rejected() { let mut r=fixture(); r.graph.nodes[0].id="synthesis".into(); assert!(r.graph.validate().is_err()); let mut r=fixture(); r.graph.nodes[0].dependencies.push("absent".into()); assert!(r.graph.validate().is_err()); }
-#[test] fn context_budget_and_nan_rejected() { let mut r=fixture(); r.graph.nodes[0].context.input_tokens=u64::MAX; assert!(r.graph.validate().is_err()); let mut r=fixture(); r.graph.nodes[0].uncertainty=f64::NAN; assert!(r.graph.validate().is_err()); }
-#[test] fn classification_cannot_be_laundered_through_dependency() { let mut r=fixture(); r.graph.nodes[0].classification=Classification::LocalOnly; assert_eq!(r.graph.validate().unwrap_err().kind,FailureKind::PolicyViolation); }
-#[test] fn local_only_never_selects_remote() { let mut r=fixture(); let w=&mut r.graph.nodes[0]; w.classification=Classification::LocalOnly; for p in &mut r.registry.resources { p.local=false; } assert!(colony_allocator::allocate(w,&r.graph.policy,&r.registry).is_err()); }
-#[test] fn hard_filters_dominate_capability() { let mut r=fixture(); r.registry.resources[0].context_window=1; r.registry.resources[1].remaining_calls=0; let a=colony_allocator::allocate(&r.graph.nodes[0],&r.graph.policy,&r.registry).unwrap(); assert_eq!(a.model,"reasoning"); assert_eq!(a.candidates.iter().filter(|c|c.score.is_none()).count(),2); }
-#[test] fn provider_and_model_identity_are_separate() { let mut r=fixture(); let mut p=r.registry.resources[0].clone(); p.provider="another".into(); r.registry.resources.push(p); assert!(r.registry.validate().is_ok()); r.registry.resources.push(r.registry.resources[0].clone()); assert!(r.registry.validate().is_err()); }
-#[test] fn zero_cost_is_finite_and_deterministic() { let mut r=fixture(); for p in &mut r.registry.resources {p.input_micros_per_million=0;p.output_micros_per_million=0;} let a=colony_allocator::allocate(&r.graph.nodes[0],&r.graph.policy,&r.registry).unwrap(); assert!(a.candidates.iter().all(|c|c.score.unwrap().is_finite())); let key=(a.provider,a.model); r.registry.resources.reverse(); let b=colony_allocator::allocate(&r.graph.nodes[0],&r.graph.policy,&r.registry).unwrap(); assert_eq!(key,(b.provider,b.model)); }
-#[test] fn topology_follows_semantic_state() { let mut r=fixture(); r.ontology.relations.push(Relation{from:"dependency-audit".into(),to:"platform-audit".into(),kind:RelationKind::SharesState,strength:0.9}); let p=plan(r.graph,r.ontology).unwrap(); assert_eq!(p.swarms.len(),3); assert_eq!(p.peak_ready,2); assert!(p.swarms.iter().any(|s|s.members.len()==2)); }
-#[test] fn ontology_dependency_direction_and_cycle() { let mut r=fixture(); r.ontology.relations.push(Relation{from:"dependency-audit".into(),to:"platform-audit".into(),kind:RelationKind::DependsOn,strength:1.0}); let p=plan(r.graph.clone(),r.ontology.clone()).unwrap(); assert!(p.graph.unit("dependency-audit").unwrap().dependencies.contains(&"platform-audit".into())); r.ontology.relations.push(Relation{from:"platform-audit".into(),to:"dependency-audit".into(),kind:RelationKind::DependsOn,strength:1.0}); assert!(plan(r.graph,r.ontology).is_err()); }
-#[test] fn width_and_verifier_backpressure() { let mut c=colony(); let mut x=Executor::default(); assert!(c.dispatch("dependency-audit",1,0,false,&mut x).is_err()); let d=c.dispatch("dependency-audit",1,1,false,&mut x).unwrap(); c.receive(d.attempt,result(&d),2).unwrap(); assert!(c.dispatch("platform-audit",2,1,false,&mut x).is_err()); c.verify("dependency-audit",2,&mut Checker{pass:true}).unwrap(); assert!(c.dispatch("platform-audit",2,1,false,&mut x).is_ok()); }
-#[test] fn stale_and_forged_results_rejected() { let mut c=colony(); let mut x=Executor::default(); let d=c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); assert!(c.receive(d.attempt+1,result(&d),2).is_err()); let mut r=result(&d); r.provider="forged".into(); assert!(c.receive(d.attempt,r,2).is_err()); assert_eq!(c.snapshot().states["dependency-audit"],State::Running); }
-#[test] fn worker_done_is_not_colony_complete() { let mut c=colony(); let mut x=Executor::default(); let d=c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); c.receive(d.attempt,result(&d),2).unwrap(); assert_eq!(c.snapshot().states["dependency-audit"],State::AwaitingVerification); assert!(!c.complete()); }
-#[test] fn missing_artifact_rejected_and_repair_is_targeted() { let mut c=colony(); let mut x=Executor::default(); let d=c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); let mut r=result(&d); r.artifacts.clear(); assert!(c.receive(d.attempt,r,2).is_err()); c.repair("dependency-audit").unwrap(); let repair=c.dispatch("dependency-audit",3,3,false,&mut x).unwrap(); assert!(repair.repair_result.is_some()); assert_eq!(repair.repair_events.len(),1); assert_eq!(c.snapshot().states["platform-audit"],State::Pending); assert_eq!(c.snapshot().reserved.calls,2); }
-#[test] fn failed_gate_prevents_dependents() { let mut c=colony(); let mut x=Executor::default(); let d=c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); c.receive(d.attempt,result(&d),2).unwrap(); assert!(c.verify("dependency-audit",2,&mut Checker{pass:false}).is_err()); assert_eq!(c.snapshot().states["dependency-audit"],State::Rejected); assert!(!c.ready().contains(&"synthesis".into())); }
-#[test] fn cancelled_colony_cannot_receive_or_spawn() { let mut c=colony(); let mut x=Executor::default(); let d=c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); c.cancel(2,&mut x).unwrap(); assert_eq!(x.cancelled.len(),1); assert!(c.ready().is_empty()); assert!(c.receive(d.attempt,result(&d),3).is_err()); assert!(c.dispatch("platform-audit",3,3,false,&mut x).is_err()); assert!(!c.complete()); }
-#[test] fn failed_cancellation_remains_retryable() { let mut c=colony(); let mut x=Executor::default(); c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); x.reject_cancel=true; assert!(c.cancel(2,&mut x).is_err()); assert!(c.ready().is_empty()); x.reject_cancel=false; c.cancel(3,&mut x).unwrap(); assert_eq!(x.cancelled.len(),1); }
-#[test] fn deadline_cancels_running_descendants() { let (mut p,r)=planned(); p.graph.policy.deadline_ms=5; let mut c=Colony::new(p,r).unwrap(); let mut x=Executor::default(); c.dispatch("dependency-audit",1,3,false,&mut x).unwrap(); c.tick(5,&mut x).unwrap(); assert_eq!(x.cancelled.len(),1); assert!(c.snapshot().cancelling); }
-#[test] fn exhausted_retry_budget_does_not_submit() { let (mut p,r)=planned(); p.graph.policy.budget.calls=4; let mut c=Colony::new(p,r).unwrap(); let mut x=Executor::default(); for time in 1..=4 {let d=c.dispatch("dependency-audit",time,3,false,&mut x).unwrap(); c.fail("dependency-audit",d.attempt,Error::new(FailureKind::ProviderUnavailable,"offline"),time).unwrap(); c.repair("dependency-audit").unwrap();} assert_eq!(c.dispatch("dependency-audit",5,3,false,&mut x).unwrap_err().kind,FailureKind::BudgetExhausted); assert_eq!(x.dispatched.len(),4); }
-#[test] fn child_authority_cannot_expand() { let mut p=fixture().graph.policy; p.max_depth=2; let mut child=p.clone(); child.max_depth=1; assert!(colony_policy::inherit(&p,&child).is_ok()); child.allow_mutation=true; assert!(colony_policy::inherit(&p,&child).is_err()); child=p.clone(); assert!(colony_policy::inherit(&p,&child).is_err()); }
-fn mutating()->(Plan,Registry) { let mut r=fixture(); r.graph.policy.allow_mutation=true; r.graph.nodes[0].mutation=Some(Mutation{allowed_paths:vec!["src".into()],forbidden_paths:vec!["src/secrets".into()],branch:"colony/a/audit".into()}); (plan(r.graph,r.ontology).unwrap(),r.registry) }
-#[test] fn mutation_approval_is_enforced() {let (p,r)=mutating();let mut c=Colony::new(p,r).unwrap();assert!(c.dispatch("dependency-audit",1,3,false,&mut Executor::default()).is_err());}
-#[test] fn semantic_lock_blocks_mutation() {let (mut p,r)=mutating();p.ontology.locked_entities.insert("dependency-audit".into());let mut c=Colony::new(p,r).unwrap();assert!(c.dispatch("dependency-audit",1,3,true,&mut Executor::default()).is_err());}
-#[test] fn mutation_scope_and_source_revision_checked() {for path in ["../escape","outside/file","src/secrets/token"] {let (p,r)=mutating();let mut c=Colony::new(p,r).unwrap();let d=c.dispatch("dependency-audit",1,3,true,&mut Executor::default()).unwrap();let mut r=result(&d);r.artifacts[0].changed_paths=vec![path.into()];assert!(c.receive(d.attempt,r,2).is_err());}}
-#[test] fn invalid_paths_and_unpinned_source_rejected() {let mut r=fixture();r.graph.nodes[0].context.source_sha="main".into();assert!(r.graph.validate().is_err());r.graph.nodes[0].context.source_sha="a".repeat(40);r.graph.nodes[0].context.relevant_paths=vec!["src/../secret".into()];assert!(r.graph.validate().is_err());}
-#[test] fn backwards_clock_rejected() {let mut c=colony();let mut x=Executor::default();c.tick(10,&mut x).unwrap();assert!(c.dispatch("dependency-audit",9,3,false,&mut x).is_err());}
-#[test] fn serialized_plan_metadata_is_not_authority() {let (mut p,r)=planned();p.swarms.clear();p.critical_path.clear();p.peak_ready=usize::MAX;let c=Colony::new(p,r).unwrap();assert_eq!(c.ready().len(),3);}
-#[test] fn reported_budget_overrun_rejected() {let mut c=colony();let d=c.dispatch("dependency-audit",1,3,false,&mut Executor::default()).unwrap();let mut r=result(&d);r.usage.tokens=u64::MAX;assert_eq!(c.receive(d.attempt,r,2).unwrap_err().kind,FailureKind::BudgetExhausted);}
-#[test] fn cost_rounds_up() {let r=fixture();let mut p=r.registry.resources[0].clone();p.input_micros_per_million=1;p.output_micros_per_million=0;assert_eq!(p.cost(&r.graph.nodes[0]).unwrap(),1);}
+#[test]
+fn ready_only_after_verified_dependencies() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    assert_eq!(c.ready().len(), 3);
+    let d = c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    c.receive(d.attempt, result(&d), 2).unwrap();
+    assert!(!c.ready().contains(&"synthesis".into()));
+    assert!(!c.complete());
+    c.verify("dependency-audit", 3, &mut Checker { pass: true })
+        .unwrap();
+    assert!(!c.complete());
+    for id in ["platform-audit", "test-analysis"] {
+        let d = c.dispatch(id, 4, 3, false, &mut x).unwrap();
+        c.receive(d.attempt, result(&d), 4).unwrap();
+        c.verify(id, 4, &mut Checker { pass: true }).unwrap();
+    }
+    let d = c.dispatch("synthesis", 5, 3, false, &mut x).unwrap();
+    assert_eq!(d.dependency_results.len(), 3);
+    c.receive(d.attempt, result(&d), 5).unwrap();
+    c.verify("synthesis", 5, &mut Checker { pass: true })
+        .unwrap();
+    assert!(c.complete());
+}
+#[test]
+fn cycle_rejected() {
+    let mut r = fixture();
+    r.graph.nodes[0].dependencies.push("synthesis".into());
+    assert!(plan(r.graph, r.ontology).is_err());
+}
+#[test]
+fn duplicate_and_dangling_ids_rejected() {
+    let mut r = fixture();
+    r.graph.nodes[0].id = "synthesis".into();
+    assert!(r.graph.validate().is_err());
+    let mut r = fixture();
+    r.graph.nodes[0].dependencies.push("absent".into());
+    assert!(r.graph.validate().is_err());
+}
+#[test]
+fn context_budget_and_nan_rejected() {
+    let mut r = fixture();
+    r.graph.nodes[0].context.input_tokens = u64::MAX;
+    assert!(r.graph.validate().is_err());
+    let mut r = fixture();
+    r.graph.nodes[0].uncertainty = f64::NAN;
+    assert!(r.graph.validate().is_err());
+}
+#[test]
+fn classification_cannot_be_laundered_through_dependency() {
+    let mut r = fixture();
+    r.graph.nodes[0].classification = Classification::LocalOnly;
+    assert_eq!(
+        r.graph.validate().unwrap_err().kind,
+        FailureKind::PolicyViolation
+    );
+}
+#[test]
+fn local_only_never_selects_remote() {
+    let mut r = fixture();
+    let w = &mut r.graph.nodes[0];
+    w.classification = Classification::LocalOnly;
+    for p in &mut r.registry.resources {
+        p.local = false;
+    }
+    assert!(colony_allocator::allocate(w, &r.graph.policy, &r.registry).is_err());
+}
+#[test]
+fn hard_filters_dominate_capability() {
+    let mut r = fixture();
+    r.registry.resources[0].context_window = 1;
+    r.registry.resources[1].remaining_calls = 0;
+    let a = colony_allocator::allocate(&r.graph.nodes[0], &r.graph.policy, &r.registry).unwrap();
+    assert_eq!(a.model, "reasoning");
+    assert_eq!(a.candidates.iter().filter(|c| c.score.is_none()).count(), 2);
+}
+#[test]
+fn provider_and_model_identity_are_separate() {
+    let mut r = fixture();
+    let mut p = r.registry.resources[0].clone();
+    p.provider = "another".into();
+    r.registry.resources.push(p);
+    assert!(r.registry.validate().is_ok());
+    r.registry.resources.push(r.registry.resources[0].clone());
+    assert!(r.registry.validate().is_err());
+}
+#[test]
+fn zero_cost_is_finite_and_deterministic() {
+    let mut r = fixture();
+    for p in &mut r.registry.resources {
+        p.input_micros_per_million = 0;
+        p.output_micros_per_million = 0;
+    }
+    let a = colony_allocator::allocate(&r.graph.nodes[0], &r.graph.policy, &r.registry).unwrap();
+    assert!(a.candidates.iter().all(|c| c.score.unwrap().is_finite()));
+    let key = (a.provider, a.model);
+    r.registry.resources.reverse();
+    let b = colony_allocator::allocate(&r.graph.nodes[0], &r.graph.policy, &r.registry).unwrap();
+    assert_eq!(key, (b.provider, b.model));
+}
+#[test]
+fn topology_follows_semantic_state() {
+    let mut r = fixture();
+    r.ontology.relations.push(Relation {
+        from: "dependency-audit".into(),
+        to: "platform-audit".into(),
+        kind: RelationKind::SharesState,
+        strength: 0.9,
+    });
+    let p = plan(r.graph, r.ontology).unwrap();
+    assert_eq!(p.swarms.len(), 3);
+    assert_eq!(p.peak_ready, 2);
+    assert!(p.swarms.iter().any(|s| s.members.len() == 2));
+}
+#[test]
+fn ontology_dependency_direction_and_cycle() {
+    let mut r = fixture();
+    r.ontology.relations.push(Relation {
+        from: "dependency-audit".into(),
+        to: "platform-audit".into(),
+        kind: RelationKind::DependsOn,
+        strength: 1.0,
+    });
+    let p = plan(r.graph.clone(), r.ontology.clone()).unwrap();
+    assert!(p
+        .graph
+        .unit("dependency-audit")
+        .unwrap()
+        .dependencies
+        .contains(&"platform-audit".into()));
+    r.ontology.relations.push(Relation {
+        from: "platform-audit".into(),
+        to: "dependency-audit".into(),
+        kind: RelationKind::DependsOn,
+        strength: 1.0,
+    });
+    assert!(plan(r.graph, r.ontology).is_err());
+}
+#[test]
+fn width_and_verifier_backpressure() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    assert!(c.dispatch("dependency-audit", 1, 0, false, &mut x).is_err());
+    let d = c.dispatch("dependency-audit", 1, 1, false, &mut x).unwrap();
+    c.receive(d.attempt, result(&d), 2).unwrap();
+    assert!(c.dispatch("platform-audit", 2, 1, false, &mut x).is_err());
+    c.verify("dependency-audit", 2, &mut Checker { pass: true })
+        .unwrap();
+    assert!(c.dispatch("platform-audit", 2, 1, false, &mut x).is_ok());
+}
+#[test]
+fn stale_and_forged_results_rejected() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    let d = c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    assert!(c.receive(d.attempt + 1, result(&d), 2).is_err());
+    let mut r = result(&d);
+    r.provider = "forged".into();
+    assert!(c.receive(d.attempt, r, 2).is_err());
+    assert_eq!(c.snapshot().states["dependency-audit"], State::Running);
+}
+#[test]
+fn worker_done_is_not_colony_complete() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    let d = c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    c.receive(d.attempt, result(&d), 2).unwrap();
+    assert_eq!(
+        c.snapshot().states["dependency-audit"],
+        State::AwaitingVerification
+    );
+    assert!(!c.complete());
+}
+#[test]
+fn missing_artifact_rejected_and_repair_is_targeted() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    let d = c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    let mut r = result(&d);
+    r.artifacts.clear();
+    assert!(c.receive(d.attempt, r, 2).is_err());
+    c.repair("dependency-audit").unwrap();
+    let repair = c.dispatch("dependency-audit", 3, 3, false, &mut x).unwrap();
+    assert!(repair.repair_result.is_some());
+    assert_eq!(repair.repair_events.len(), 1);
+    assert_eq!(c.snapshot().states["platform-audit"], State::Pending);
+    assert_eq!(c.snapshot().reserved.calls, 2);
+}
+#[test]
+fn failed_gate_prevents_dependents() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    let d = c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    c.receive(d.attempt, result(&d), 2).unwrap();
+    assert!(c
+        .verify("dependency-audit", 2, &mut Checker { pass: false })
+        .is_err());
+    assert_eq!(c.snapshot().states["dependency-audit"], State::Rejected);
+    assert!(!c.ready().contains(&"synthesis".into()));
+}
+#[test]
+fn cancelled_colony_cannot_receive_or_spawn() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    let d = c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    c.cancel(2, &mut x).unwrap();
+    assert_eq!(x.cancelled.len(), 1);
+    assert!(c.ready().is_empty());
+    assert!(c.receive(d.attempt, result(&d), 3).is_err());
+    assert!(c.dispatch("platform-audit", 3, 3, false, &mut x).is_err());
+    assert!(!c.complete());
+}
+#[test]
+fn failed_cancellation_remains_retryable() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    x.reject_cancel = true;
+    assert!(c.cancel(2, &mut x).is_err());
+    assert!(c.ready().is_empty());
+    x.reject_cancel = false;
+    c.cancel(3, &mut x).unwrap();
+    assert_eq!(x.cancelled.len(), 1);
+}
+#[test]
+fn deadline_cancels_running_descendants() {
+    let (mut p, r) = planned();
+    p.graph.policy.deadline_ms = 5;
+    let mut c = Colony::new(p, r).unwrap();
+    let mut x = Executor::default();
+    c.dispatch("dependency-audit", 1, 3, false, &mut x).unwrap();
+    c.tick(5, &mut x).unwrap();
+    assert_eq!(x.cancelled.len(), 1);
+    assert!(c.snapshot().cancelling);
+}
+#[test]
+fn exhausted_retry_budget_does_not_submit() {
+    let (mut p, r) = planned();
+    p.graph.policy.budget.calls = 4;
+    let mut c = Colony::new(p, r).unwrap();
+    let mut x = Executor::default();
+    for time in 1..=4 {
+        let d = c
+            .dispatch("dependency-audit", time, 3, false, &mut x)
+            .unwrap();
+        c.fail(
+            "dependency-audit",
+            d.attempt,
+            Error::new(FailureKind::ProviderUnavailable, "offline"),
+            time,
+        )
+        .unwrap();
+        c.repair("dependency-audit").unwrap();
+    }
+    assert_eq!(
+        c.dispatch("dependency-audit", 5, 3, false, &mut x)
+            .unwrap_err()
+            .kind,
+        FailureKind::BudgetExhausted
+    );
+    assert_eq!(x.dispatched.len(), 4);
+}
+#[test]
+fn child_authority_cannot_expand() {
+    let mut p = fixture().graph.policy;
+    p.max_depth = 2;
+    let mut child = p.clone();
+    child.max_depth = 1;
+    assert!(colony_policy::inherit(&p, &child).is_ok());
+    child.allow_mutation = true;
+    assert!(colony_policy::inherit(&p, &child).is_err());
+    child = p.clone();
+    assert!(colony_policy::inherit(&p, &child).is_err());
+}
+fn mutating() -> (Plan, Registry) {
+    let mut r = fixture();
+    r.graph.policy.allow_mutation = true;
+    r.graph.nodes[0].mutation = Some(Mutation {
+        allowed_paths: vec!["src".into()],
+        forbidden_paths: vec!["src/secrets".into()],
+        branch: "colony/a/audit".into(),
+    });
+    (plan(r.graph, r.ontology).unwrap(), r.registry)
+}
+#[test]
+fn mutation_approval_is_enforced() {
+    let (p, r) = mutating();
+    let mut c = Colony::new(p, r).unwrap();
+    assert!(c
+        .dispatch("dependency-audit", 1, 3, false, &mut Executor::default())
+        .is_err());
+}
+#[test]
+fn semantic_lock_blocks_mutation() {
+    let (mut p, r) = mutating();
+    p.ontology.locked_entities.insert("dependency-audit".into());
+    let mut c = Colony::new(p, r).unwrap();
+    assert!(c
+        .dispatch("dependency-audit", 1, 3, true, &mut Executor::default())
+        .is_err());
+}
+#[test]
+fn mutation_scope_and_source_revision_checked() {
+    for path in ["../escape", "outside/file", "src/secrets/token"] {
+        let (p, r) = mutating();
+        let mut c = Colony::new(p, r).unwrap();
+        let d = c
+            .dispatch("dependency-audit", 1, 3, true, &mut Executor::default())
+            .unwrap();
+        let mut r = result(&d);
+        r.artifacts[0].changed_paths = vec![path.into()];
+        assert!(c.receive(d.attempt, r, 2).is_err());
+    }
+}
+#[test]
+fn invalid_paths_and_unpinned_source_rejected() {
+    let mut r = fixture();
+    r.graph.nodes[0].context.source_sha = "main".into();
+    assert!(r.graph.validate().is_err());
+    r.graph.nodes[0].context.source_sha = "a".repeat(40);
+    r.graph.nodes[0].context.relevant_paths = vec!["src/../secret".into()];
+    assert!(r.graph.validate().is_err());
+}
+#[test]
+fn backwards_clock_rejected() {
+    let mut c = colony();
+    let mut x = Executor::default();
+    c.tick(10, &mut x).unwrap();
+    assert!(c.dispatch("dependency-audit", 9, 3, false, &mut x).is_err());
+}
+#[test]
+fn serialized_plan_metadata_is_not_authority() {
+    let (mut p, r) = planned();
+    p.swarms.clear();
+    p.critical_path.clear();
+    p.peak_ready = usize::MAX;
+    let c = Colony::new(p, r).unwrap();
+    assert_eq!(c.ready().len(), 3);
+}
+#[test]
+fn reported_budget_overrun_rejected() {
+    let mut c = colony();
+    let d = c
+        .dispatch("dependency-audit", 1, 3, false, &mut Executor::default())
+        .unwrap();
+    let mut r = result(&d);
+    r.usage.tokens = u64::MAX;
+    assert_eq!(
+        c.receive(d.attempt, r, 2).unwrap_err().kind,
+        FailureKind::BudgetExhausted
+    );
+}
+#[test]
+fn cost_rounds_up() {
+    let r = fixture();
+    let mut p = r.registry.resources[0].clone();
+    p.input_micros_per_million = 1;
+    p.output_micros_per_million = 0;
+    assert_eq!(p.cost(&r.graph.nodes[0]).unwrap(), 1);
+}

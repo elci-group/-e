@@ -1,4 +1,0 @@
-# Cargo cannot put a colon-containing target path in Unix loader search paths.
-# Override with CARGO_TARGET_DIR on other hosts.
-[build]
-target-dir = "/tmp/colony-target"

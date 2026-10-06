@@ -10,3 +10,6 @@ serde.workspace = true
 colony-core.workspace = true
 colony-policy.workspace = true
 colony-provider.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

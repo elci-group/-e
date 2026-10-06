@@ -1,0 +1,116 @@
+{
+  "cluster_id": "4e8ae29c-8001-400c-a32b-2cddf876c18e",
+  "version": "0.1.1",
+  "bump": "Patch",
+  "event_count": 1,
+  "started_at": "2026-10-06T09:34:34.644416410Z",
+  "ended_at": "2026-10-06T09:34:34.644416410Z",
+  "diff": {
+    "structural": 0.37084085,
+    "api": 0.79375,
+    "deps": 0.60833335,
+    "runtime": 0.0,
+    "api_breaking": false,
+    "api_added": false,
+    "touched_paths": 35,
+    "api_touches": 9,
+    "api_signatures": 273,
+    "dependency_manifests": 6,
+    "dependency_nodes": 9,
+    "dependency_edges": 8,
+    "runtime_paths": 0,
+    "bundle": 0.0,
+    "parse_metadata": [
+      {
+        "file": "crates/colony-allocator/src/lib.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-cli/src/main.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-core/src/lib.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-planner/src/lib.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-policy/src/lib.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-provider/src/lib.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-runtime/src/lib.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-runtime/tests/contracts.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-runtime/tests/lifecycle.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      }
+    ],
+    "ast_cache_hits": 9,
+    "ast_cache_misses": 0,
+    "ast_cache_entries": 9
+  },
+  "weight": {
+    "score": 0.489586,
+    "api_breaking": false,
+    "api_added": false
+  },
+  "air_gapped": false
+}

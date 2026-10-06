@@ -18,3 +18,10 @@ colony-runtime.workspace = true
 [[bin]]
 name = "colony"
 path = "src/main.rs"
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[[bench]]
+name = "lifecycle"
+harness = false

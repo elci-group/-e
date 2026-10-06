@@ -8,3 +8,6 @@ rust-version.workspace = true
 [dependencies]
 serde.workspace = true
 colony-core.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
