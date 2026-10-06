@@ -1,0 +1,741 @@
+{
+  "generated_at": "2026-10-06T09:34:35.927374607Z",
+  "repository": "/home/sal/:e/",
+  "target": "origin/main",
+  "source": "main",
+  "hybreed": {
+    "analysis_version": "hybreed-analysis/2",
+    "confidence": 0.95,
+    "conflict_class": null,
+    "decision": "Merge",
+    "evidence": [
+      {
+        "description": "merge base of origin/main and main is d5fef8230574251a8cf8c66edd0644153a4f53fe",
+        "origin": "ProvenFact"
+      },
+      {
+        "description": "origin/main has 0 changed file(s) and is 0 commit(s) ahead of the merge base",
+        "origin": "ProvenFact"
+      },
+      {
+        "description": "main has 46 changed file(s) and is 2 commit(s) ahead of the merge base",
+        "origin": "ProvenFact"
+      },
+      {
+        "description": "main changed 30 non-Rust file(s); no symbol model applied (fail closed)",
+        "origin": "DeterministicInference"
+      },
+      {
+        "description": "risk score 25.0/100 (medium) from 8 factors",
+        "origin": "DeterministicInference"
+      },
+      {
+        "description": "no file-level overlap between the two sides; changes are disjoint",
+        "origin": "DeterministicInference"
+      }
+    ],
+    "graph": {
+      "edges": [
+        {
+          "from": "base",
+          "kind": "AncestorOf",
+          "to": "side:origin/main"
+        },
+        {
+          "from": "base",
+          "kind": "AncestorOf",
+          "to": "side:main"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.cargo/config.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.gitignore"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/analysis/4e8ae29c-8001-400c-a32b-2cddf876c18e.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/ast_cache.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/audit.chain.jsonl"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/audit.jsonl"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/decisions.jsonl"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/integration/20261004T013416Z-c0b63020-9e84-44c3-ba11-637b3a2d7f7a.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/status.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/telemetry.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:.kaptaind/version_cache.json"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:Cargo.lock"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:DIRECTIVE.md"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:LICENSE"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:README.md"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:VERSION"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-allocator/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-allocator/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-allocator/tests/allocation.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-cli/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-cli/benches/lifecycle.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-cli/src/main.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-cli/tests/cli.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-core/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-core/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-core/tests/validation.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-planner/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-planner/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-planner/tests/planning.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-policy/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-policy/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-policy/tests/authority.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-provider/Cargo.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-provider/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-provider/tests/registry.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-runtime/src/lib.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-runtime/tests/contracts.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:crates/colony-runtime/tests/lifecycle.rs"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:deliver.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:docs/architecture.md"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:docs/benchmarks.md"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:lwoodz.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:poka.lock"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:poka.toml"
+        },
+        {
+          "from": "side:main",
+          "kind": "Touches",
+          "to": "file:traci.toml"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "base",
+          "kind": "Commit",
+          "label": "merge-base d5fef823"
+        },
+        {
+          "id": "side:origin/main",
+          "kind": "Branch",
+          "label": "origin/main"
+        },
+        {
+          "id": "side:main",
+          "kind": "Branch",
+          "label": "main"
+        },
+        {
+          "id": "file:.cargo/config.toml",
+          "kind": "File",
+          "label": ".cargo/config.toml"
+        },
+        {
+          "id": "file:.gitignore",
+          "kind": "File",
+          "label": ".gitignore"
+        },
+        {
+          "id": "file:.kaptaind/analysis/4e8ae29c-8001-400c-a32b-2cddf876c18e.json",
+          "kind": "File",
+          "label": ".kaptaind/analysis/4e8ae29c-8001-400c-a32b-2cddf876c18e.json"
+        },
+        {
+          "id": "file:.kaptaind/ast_cache.json",
+          "kind": "File",
+          "label": ".kaptaind/ast_cache.json"
+        },
+        {
+          "id": "file:.kaptaind/audit.chain.jsonl",
+          "kind": "File",
+          "label": ".kaptaind/audit.chain.jsonl"
+        },
+        {
+          "id": "file:.kaptaind/audit.jsonl",
+          "kind": "File",
+          "label": ".kaptaind/audit.jsonl"
+        },
+        {
+          "id": "file:.kaptaind/decisions.jsonl",
+          "kind": "File",
+          "label": ".kaptaind/decisions.jsonl"
+        },
+        {
+          "id": "file:.kaptaind/integration/20261004T013416Z-c0b63020-9e84-44c3-ba11-637b3a2d7f7a.json",
+          "kind": "File",
+          "label": ".kaptaind/integration/20261004T013416Z-c0b63020-9e84-44c3-ba11-637b3a2d7f7a.json"
+        },
+        {
+          "id": "file:.kaptaind/status.json",
+          "kind": "File",
+          "label": ".kaptaind/status.json"
+        },
+        {
+          "id": "file:.kaptaind/telemetry.json",
+          "kind": "File",
+          "label": ".kaptaind/telemetry.json"
+        },
+        {
+          "id": "file:.kaptaind/version_cache.json",
+          "kind": "File",
+          "label": ".kaptaind/version_cache.json"
+        },
+        {
+          "id": "file:Cargo.lock",
+          "kind": "File",
+          "label": "Cargo.lock"
+        },
+        {
+          "id": "file:Cargo.toml",
+          "kind": "File",
+          "label": "Cargo.toml"
+        },
+        {
+          "id": "file:DIRECTIVE.md",
+          "kind": "File",
+          "label": "DIRECTIVE.md"
+        },
+        {
+          "id": "file:LICENSE",
+          "kind": "File",
+          "label": "LICENSE"
+        },
+        {
+          "id": "file:README.md",
+          "kind": "File",
+          "label": "README.md"
+        },
+        {
+          "id": "file:VERSION",
+          "kind": "File",
+          "label": "VERSION"
+        },
+        {
+          "id": "file:crates/colony-allocator/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-allocator/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-allocator/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-allocator/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-allocator/tests/allocation.rs",
+          "kind": "File",
+          "label": "crates/colony-allocator/tests/allocation.rs"
+        },
+        {
+          "id": "file:crates/colony-cli/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-cli/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-cli/benches/lifecycle.rs",
+          "kind": "File",
+          "label": "crates/colony-cli/benches/lifecycle.rs"
+        },
+        {
+          "id": "file:crates/colony-cli/src/main.rs",
+          "kind": "File",
+          "label": "crates/colony-cli/src/main.rs"
+        },
+        {
+          "id": "file:crates/colony-cli/tests/cli.rs",
+          "kind": "File",
+          "label": "crates/colony-cli/tests/cli.rs"
+        },
+        {
+          "id": "file:crates/colony-core/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-core/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-core/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-core/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-core/tests/validation.rs",
+          "kind": "File",
+          "label": "crates/colony-core/tests/validation.rs"
+        },
+        {
+          "id": "file:crates/colony-planner/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-planner/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-planner/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-planner/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-planner/tests/planning.rs",
+          "kind": "File",
+          "label": "crates/colony-planner/tests/planning.rs"
+        },
+        {
+          "id": "file:crates/colony-policy/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-policy/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-policy/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-policy/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-policy/tests/authority.rs",
+          "kind": "File",
+          "label": "crates/colony-policy/tests/authority.rs"
+        },
+        {
+          "id": "file:crates/colony-provider/Cargo.toml",
+          "kind": "File",
+          "label": "crates/colony-provider/Cargo.toml"
+        },
+        {
+          "id": "file:crates/colony-provider/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-provider/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-provider/tests/registry.rs",
+          "kind": "File",
+          "label": "crates/colony-provider/tests/registry.rs"
+        },
+        {
+          "id": "file:crates/colony-runtime/src/lib.rs",
+          "kind": "File",
+          "label": "crates/colony-runtime/src/lib.rs"
+        },
+        {
+          "id": "file:crates/colony-runtime/tests/contracts.rs",
+          "kind": "File",
+          "label": "crates/colony-runtime/tests/contracts.rs"
+        },
+        {
+          "id": "file:crates/colony-runtime/tests/lifecycle.rs",
+          "kind": "File",
+          "label": "crates/colony-runtime/tests/lifecycle.rs"
+        },
+        {
+          "id": "file:deliver.toml",
+          "kind": "File",
+          "label": "deliver.toml"
+        },
+        {
+          "id": "file:docs/architecture.md",
+          "kind": "File",
+          "label": "docs/architecture.md"
+        },
+        {
+          "id": "file:docs/benchmarks.md",
+          "kind": "File",
+          "label": "docs/benchmarks.md"
+        },
+        {
+          "id": "file:lwoodz.toml",
+          "kind": "File",
+          "label": "lwoodz.toml"
+        },
+        {
+          "id": "file:poka.lock",
+          "kind": "File",
+          "label": "poka.lock"
+        },
+        {
+          "id": "file:poka.toml",
+          "kind": "File",
+          "label": "poka.toml"
+        },
+        {
+          "id": "file:traci.toml",
+          "kind": "File",
+          "label": "traci.toml"
+        }
+      ]
+    },
+    "reasoning": {
+      "judgments": [],
+      "provider": "offline"
+    },
+    "recommended_plan": [
+      "git merge main into the target",
+      "run the configured validation ladder"
+    ],
+    "relationship": "Independent",
+    "risk": {
+      "factors": [
+        {
+          "contribution": 20.0,
+          "detail": "46 files changed across both sides",
+          "name": "change_surface"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 file(s) touched by both sides",
+          "name": "semantic_overlap"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 mechanical conflict(s)",
+          "name": "conflict_density"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 shared dependency file(s)",
+          "name": "dependency_coupling"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 and 2 commits ahead of the merge base respectively",
+          "name": "branch_age"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 symbol(s) removed or reshaped while still referenced",
+          "name": "structural_breakage"
+        },
+        {
+          "contribution": 0.0,
+          "detail": "0 divergent shared symbol(s), 0 cross-side reference(s)",
+          "name": "symbol_coupling"
+        },
+        {
+          "contribution": 5.0,
+          "detail": "test coverage, provenance quality and security sensitivity are not yet modeled (Phase III+)",
+          "name": "unmodeled_factors"
+        }
+      ],
+      "level": "Medium",
+      "score": 25.0
+    },
+    "risks": [],
+    "semantic": {
+      "cross_references": [],
+      "duplicated_symbols": [],
+      "evidence": [
+        {
+          "description": "main changed 30 non-Rust file(s); no symbol model applied (fail closed)",
+          "origin": "DeterministicInference"
+        }
+      ],
+      "intent": {
+        "left": {
+          "actions": [],
+          "summaries": [],
+          "targets": []
+        },
+        "relation": "Unknown",
+        "right": {
+          "actions": [
+            "Change"
+          ],
+          "summaries": [
+            "build(deps): update dependencies (.gitignore, Cargo.lock, +17 more)",
+            "chore: update documentation (DIRECTIVE.md)"
+          ],
+          "targets": [
+            "cargo",
+            "dependencies",
+            "directive"
+          ]
+        }
+      },
+      "structural_conflicts": [],
+      "supersession": null,
+      "symbol_overlaps": [],
+      "unsupported_files": [
+        "main:.cargo/config.toml",
+        "main:.gitignore",
+        "main:.kaptaind/analysis/4e8ae29c-8001-400c-a32b-2cddf876c18e.json",
+        "main:.kaptaind/ast_cache.json",
+        "main:.kaptaind/audit.chain.jsonl",
+        "main:.kaptaind/audit.jsonl",
+        "main:.kaptaind/decisions.jsonl",
+        "main:.kaptaind/integration/20261004T013416Z-c0b63020-9e84-44c3-ba11-637b3a2d7f7a.json",
+        "main:.kaptaind/status.json",
+        "main:.kaptaind/telemetry.json",
+        "main:.kaptaind/version_cache.json",
+        "main:Cargo.lock",
+        "main:Cargo.toml",
+        "main:DIRECTIVE.md",
+        "main:LICENSE",
+        "main:README.md",
+        "main:VERSION",
+        "main:crates/colony-allocator/Cargo.toml",
+        "main:crates/colony-cli/Cargo.toml",
+        "main:crates/colony-core/Cargo.toml",
+        "main:crates/colony-planner/Cargo.toml",
+        "main:crates/colony-policy/Cargo.toml",
+        "main:crates/colony-provider/Cargo.toml",
+        "main:deliver.toml",
+        "main:docs/architecture.md",
+        "main:docs/benchmarks.md",
+        "main:lwoodz.toml",
+        "main:poka.lock",
+        "main:poka.toml",
+        "main:traci.toml"
+      ]
+    },
+    "unresolved_assumptions": [
+      "no hidden coupling beyond file- and symbol-level overlap"
+    ],
+    "validation_status": "not_validated_phase_II_dry_run"
+  },
+  "scrawny": {
+    "cohesion": 0.09621882542236523,
+    "concerns": 7,
+    "max_concerns": 4,
+    "max_review_load": 70,
+    "min_cohesion": 0.55,
+    "passed": false,
+    "reasons": [
+      "review load 87/100 exceeds policy maximum 70",
+      "cohesion 10% is below policy minimum 55%",
+      "7 independent concerns detected, policy maximum is 4"
+    ],
+    "review_load": 87
+  },
+  "emulsify": {
+    "forks": [
+      {
+        "action": "emulsify",
+        "compatibility": 0.6130349386827372,
+        "dimensions": [
+          {
+            "dimension": "api",
+            "score": 0.4923664122137405,
+            "weight": 0.15
+          },
+          {
+            "dimension": "types",
+            "score": 0.8653846153846154,
+            "weight": 0.1
+          },
+          {
+            "dimension": "dependencies",
+            "score": null,
+            "weight": 0.15
+          },
+          {
+            "dimension": "architecture",
+            "score": 1.0,
+            "weight": 0.15
+          },
+          {
+            "dimension": "behaviour",
+            "score": 0.4068627450980392,
+            "weight": 0.1
+          },
+          {
+            "dimension": "tests",
+            "score": 0.125,
+            "weight": 0.1
+          },
+          {
+            "dimension": "ownership",
+            "score": 1.0,
+            "weight": 0.05
+          },
+          {
+            "dimension": "lineage",
+            "score": 0.075,
+            "weight": 0.1
+          },
+          {
+            "dimension": "abstraction",
+            "score": 1.0,
+            "weight": 0.1
+          }
+        ],
+        "fluid_class": "medium",
+        "name": "source",
+        "path": "/tmp/kaptaind-integration-e2500300-852e-4e73-a307-2bbe0c4ed786/source",
+        "viscosity": 0.3869650613172628
+      }
+    ],
+    "host": {
+      "files": 23,
+      "languages": {
+        "json": 1,
+        "rust": 8,
+        "toml": 10
+      },
+      "name": "host",
+      "path": "/tmp/kaptaind-integration-e2500300-852e-4e73-a307-2bbe0c4ed786/target"
+    }
+  },
+  "recommendation": "Hybreed: Merge; Scrawny: review load 87/100 exceeds policy (70); Emulsify: review; explicit validation required",
+  "persisted": null
+}

@@ -1,8 +1,6 @@
 {
-  "status": "Committing",
-  "last_version": "0.1.0",
-  "last_action_time": "2026-10-06T09:34:35.185548880Z",
-  "last_error": null,
-  "current_task": "Analyzing diff & committing",
-  "progress_percent": 75
+  "status": "Idle",
+  "last_version": "0.1.1",
+  "last_action_time": "2026-10-06T09:34:35.929805329Z",
+  "last_error": null
 }
