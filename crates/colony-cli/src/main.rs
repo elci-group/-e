@@ -1,23 +1,17 @@
 // SPDX-License-Identifier: MIT
+use colony_adapters::{execute, ColonyRequest, ElciEndpoint, Host};
 use colony_core::*;
-use colony_provider::Registry;
 use colony_runtime::{Colony, Dispatch, Mesut, Verifier};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use std::path::PathBuf;
 use std::{env, fs, process::ExitCode};
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Request {
-    graph: WorkGraph,
-    ontology: OntologySlice,
-    registry: Registry,
-}
 #[derive(Serialize)]
 struct Planned {
     mode: &'static str,
     plan: colony_planner::Plan,
     assignments: Vec<colony_allocator::Assignment>,
 }
-fn load(path: &str) -> std::result::Result<Request, Box<dyn std::error::Error>> {
+fn load(path: &str) -> std::result::Result<ColonyRequest, Box<dyn std::error::Error>> {
     let data = fs::read(path)?;
     Ok(serde_json::from_slice(&data)?)
 }
@@ -35,15 +29,41 @@ enum Mode {
     Validate,
     Simulate,
 }
+fn usage() -> String {
+    format!(
+        "\
+Colony (:e) {version}
+
+Usage: colony <plan|validate|simulate|execute> REQUEST.json
+
+plan      Compile bounded work candidates and ontology into an explained JSON plan
+validate  Check contracts, policy, semantic DAG and provider eligibility
+simulate  Exercise lifecycle with synthetic artifacts; runs no inference or tools
+execute   Run the colony on Mesut with ELCI inference and the host verifier
+
+execute REQUEST.json --root DIR [--ontology FILE.pad]
+        [--command PROG] [--arg ARG]...
+        [--endpoint URL] [--api-key KEY] [--approve]
+
+simulate is a synthetic stand-in. execute is the live host path.
+See examples/request.json and docs/architecture.md.
+",
+        version = env!("CARGO_PKG_VERSION"),
+    )
+}
+
 fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let args: Vec<_> = env::args().skip(1).collect();
     if args.is_empty() || matches!(args[0].as_str(), "--help" | "-h") {
-        println!("Colony (:e) {}\n\nUsage: colony <plan|validate|simulate> REQUEST.json\n\nplan      Compile bounded work candidates and ontology into an explained JSON plan\nvalidate  Check contracts, policy, semantic DAG and provider eligibility\nsimulate  Exercise lifecycle with synthetic artifacts; runs no inference or tools\n\nLive execution is available through the Rust Mesut and Verifier adapter traits.\nSee examples/request.json and docs/architecture.md.", env!("CARGO_PKG_VERSION"));
+        print!("{}", usage());
         return Ok(());
     }
     if args == ["--version"] {
         println!("colony {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
+    }
+    if args.first().map(String::as_str) == Some("execute") {
+        return execute_cli(&args[1..]);
     }
     let (mode, path) =
         match args.as_slice() {
@@ -51,7 +71,7 @@ fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
             [verb, path] if verb == "validate" => (Mode::Validate, path),
             [verb, path] if verb == "simulate" => (Mode::Simulate, path),
             _ => return Err(
-                "expected plan, validate or simulate followed by a request JSON file; use --help"
+                "expected plan, validate, simulate or execute followed by a request JSON file; use --help"
                     .into(),
             ),
         };
@@ -137,6 +157,68 @@ fn run() -> std::result::Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+fn execute_cli(args: &[String]) -> std::result::Result<(), Box<dyn std::error::Error>> {
+    if args.is_empty() || args[0].starts_with('-') {
+        return Err("execute requires a request JSON file before its flags; use --help".into());
+    }
+    let mut root = None;
+    let mut ontology = None;
+    let mut command = None;
+    let mut command_args = Vec::new();
+    let mut endpoint = None;
+    let mut api_key = None;
+    let mut approve = false;
+    let mut index = 1;
+    while index < args.len() {
+        let flag = args[index].as_str();
+        let value = |index: &mut usize, name: &str| -> std::result::Result<String, String> {
+            *index += 1;
+            args.get(*index)
+                .cloned()
+                .ok_or_else(|| format!("{name} requires a value"))
+        };
+        match flag {
+            "--root" => root = Some(value(&mut index, "--root")?),
+            "--ontology" => ontology = Some(value(&mut index, "--ontology")?),
+            "--command" => command = Some(value(&mut index, "--command")?),
+            "--arg" => command_args.push(value(&mut index, "--arg")?),
+            "--endpoint" => endpoint = Some(value(&mut index, "--endpoint")?),
+            "--api-key" => api_key = Some(value(&mut index, "--api-key")?),
+            "--approve" => approve = true,
+            other => return Err(format!("unknown execute flag {other}").into()),
+        }
+        index += 1;
+    }
+    let root = root.ok_or("execute requires --root")?;
+    if api_key.is_some() && endpoint.is_none() {
+        return Err("--api-key applies to --endpoint".into());
+    }
+    if !command_args.is_empty() && command.is_none() {
+        return Err("--arg applies to --command".into());
+    }
+    let endpoint = match (command, endpoint) {
+        (Some(program), None) => ElciEndpoint::Command {
+            program: PathBuf::from(program),
+            args: command_args,
+        },
+        (None, Some(base)) => ElciEndpoint::Http { base, api_key },
+        (Some(_), Some(_)) => return Err("execute accepts either --command or --endpoint".into()),
+        (None, None) => return Err("execute requires --command or --endpoint".into()),
+    };
+    let request = load(&args[0])?;
+    let report = execute(
+        request,
+        Host {
+            root: PathBuf::from(root),
+            ontology: ontology.map(PathBuf::from),
+            endpoint,
+            human_approved: approve,
+        },
+    )?;
+    println!("{}", serde_json::to_string_pretty(&report)?);
+    Ok(())
+}
+
 struct Simulation;
 impl Mesut for Simulation {
     fn submit(&mut self, d: &Dispatch) -> Result<String> {

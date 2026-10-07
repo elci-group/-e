@@ -8,16 +8,17 @@ validated` lifecycle under integer budget authority. A unit only counts as done 
 **trusted** evidence from a host-supplied verifier accepts it. A worker's own output
 never certifies itself.
 
-**What Colony is not:** it makes no HTTP calls, opens no sockets, runs no async
-runtime, does no filesystem I/O in its libraries, and reads no clocks. It does not
-call models or run tools. The host does those things through two traits, `Mesut`
-(execution) and `Verifier` (trusted checks), and drives time by calling `tick`.
-Live adapters belong to the ELCI provider layer and are **out of scope for v0.1.x**.
-The CLI includes only a synthetic simulation.
+**What the control plane is not:** the crates below `colony-adapters` make no HTTP
+calls, open no sockets, run no async runtime, do no filesystem I/O, and read no
+clocks. They do not call models or run tools. The host does those things and drives
+time by calling the runtime. `colony-adapters` is that host boundary: Mesut
+execution, a trusted verifier, an ELCI inference provider, a Padagonia semantic
+source, and Lucid-style preflight. `simulate` stays a synthetic stand-in.
+`execute` is the live path.
 
 ## Quickstart
 
-All commands work offline. Rust 1.85 or newer is required.
+The commands below work offline. Rust 1.85 or newer is required. `execute --endpoint` is the one path that opens a socket.
 
 ```sh
 cargo build --offline
@@ -43,13 +44,18 @@ to stderr and exits with status `1`. Contract errors print as
 $ colony --help
 Colony (:e) 0.1.1
 
-Usage: colony <plan|validate|simulate> REQUEST.json
+Usage: colony <plan|validate|simulate|execute> REQUEST.json
 
 plan      Compile bounded work candidates and ontology into an explained JSON plan
 validate  Check contracts, policy, semantic DAG and provider eligibility
 simulate  Exercise lifecycle with synthetic artifacts; runs no inference or tools
+execute   Run the colony on Mesut with ELCI inference and the host verifier
 
-Live execution is available through the Rust Mesut and Verifier adapter traits.
+execute REQUEST.json --root DIR [--ontology FILE.pad]
+        [--command PROG] [--arg ARG]...
+        [--endpoint URL] [--api-key KEY] [--approve]
+
+simulate is a synthetic stand-in. execute is the live host path.
 See examples/request.json and docs/architecture.md.
 
 $ colony --version
@@ -100,6 +106,16 @@ events     18: ColonyCreated, then per unit WorkerAssigned → ArtifactProduced 
 evidence   per unit: the required checks with evidence refs, acceptance, verifier
 ```
 
+**execute** runs the same state machine through the host adapters. `--root` is the
+workspace preflight reads. Pass exactly one model path: `--command` (a local program;
+repeat `--arg` for its arguments) or `--endpoint` (cleartext `http://` OpenAI-compatible
+`/v1/chat/completions`; `--api-key` only with an endpoint). `--ontology` is an optional
+Padagonia store. `--approve` records host approval for a mutation the policy requires.
+The report is `execution_complete` plus the snapshot and trusted evidence. It does not
+include scratch paths or Mesut task ids. Each attempt runs in a private directory,
+which is removed when the run ends. Colony copies pinned files into that directory
+and does not write outputs back into `--root`.
+
 ## Safety invariants
 
 - **Fail closed.** Every rejection is a typed `colony_core::Error` with a specific
@@ -127,7 +143,9 @@ The full rules and the threat model are in [docs/architecture.md](docs/architect
 
 ## Crate map
 
-Dependencies point one way: `core ← policy/provider ← planner/allocator ← runtime ← cli`.
+Dependencies point one way:
+`core ← policy/provider ← planner/allocator ← runtime ← colony-adapters ← cli`.
+Crates below `colony-adapters` stay transport-neutral.
 
 | Crate | Role |
 |---|---|
@@ -137,7 +155,8 @@ Dependencies point one way: `core ← policy/provider ← planner/allocator ← 
 | `colony-planner` | Swarm coupling, semantic edge injection, critical path and peak-width estimates |
 | `colony-allocator` | Hard eligibility filters and comparative-advantage scoring |
 | `colony-runtime` | The `Colony` state machine and the `Mesut`/`Verifier` traits |
-| `colony-cli` | The `colony` binary (`plan`, `validate`, `simulate`) and the benchmarks |
+| `colony-adapters` | Host implementations: `MesutExecutor`, `HostVerifier`, `ElciProvider`, `PadagoniaSource`, `LucidPreflight` |
+| `colony-cli` | The `colony` binary (`plan`, `validate`, `simulate`, `execute`) and the benchmarks |
 
 ## Development
 
@@ -157,9 +176,11 @@ deliver --spec deliver.toml --strict              # the full release gate
 cargo bench --offline -p colony-cli --bench lifecycle
 ```
 
-- The only external crates are `serde` and `serde_json`. Do not add others.
-- Tests are hermetic: no network, no time, no randomness. Only the CLI end-to-end
-  tests touch the filesystem, through temp files.
+- Crates below `colony-adapters` depend only on `serde` and `serde_json`. The adapter
+  crate also depends on path `mesut`, path `padagonia`, `sha2`, and `tokio`.
+- Control-plane tests do not touch the network, the clock, or randomness. Adapter tests
+  spawn a local process and, for the HTTP provider, a loopback listener. They do not
+  call the public network. CLI tests use temp files.
 - Benchmarks are std-only (`harness = false`, no criterion) and run on stable Rust.
   Recorded numbers are in [docs/benchmarks.md](docs/benchmarks.md).
 

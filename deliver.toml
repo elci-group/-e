@@ -24,11 +24,11 @@ cmd = ["cargo", "fmt", "--all", "--", "--check"]
 [[command]]
 name = "tests"
 cmd = ["cargo", "test", "--workspace", "--offline"]
-timeout_secs = 120
+timeout_secs = 300
 [[command]]
 name = "lint"
 cmd = ["cargo", "clippy", "--workspace", "--all-targets", "--offline", "--", "-D", "warnings"]
-timeout_secs = 120
+timeout_secs = 300
 [[command]]
 name = "simulation"
 cmd = ["cargo", "run", "--offline", "-q", "--", "simulate", "examples/request.json"]

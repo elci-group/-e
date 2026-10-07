@@ -2,6 +2,11 @@
 
 Date: 2026-10-04 · Owner: elci-group · Repo: `elci-group/-e` · Status: ratified, executing
 
+Status note (2026-10-07): v0.1.1 shipped the control plane. Host adapters for Mesut,
+the verifier, ELCI inference, Padagonia, and Lucid preflight now live in
+`colony-adapters`, between runtime and the CLI. Section 4 below remains the
+2026-10-04 baseline.
+
 ## 1. Purpose
 
 Colony (`:e`) is a deterministic, transport-independent control plane for orchestrating

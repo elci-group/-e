@@ -17,4 +17,5 @@ colony-provider = { path = "crates/colony-provider" }
 colony-planner = { path = "crates/colony-planner" }
 colony-allocator = { path = "crates/colony-allocator" }
 colony-runtime = { path = "crates/colony-runtime" }
+colony-adapters = { path = "crates/colony-adapters" }
 colony-cli = { path = "crates/colony-cli" }

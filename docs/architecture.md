@@ -29,11 +29,13 @@ the code, and each section names where.
 | `colony-planner` | core, policy | `plan` → `Plan` (swarms, critical path, `peak_ready`, warnings) |
 | `colony-allocator` | core, policy, provider | `eligible`, `allocate` → `Assignment` |
 | `colony-runtime` | all of the above | `Colony`, `Mesut`, `Verifier`, `Dispatch`, `Snapshot` |
-| `colony-cli` | all + serde_json | the `colony` binary and the benchmarks |
+| `colony-adapters` | runtime, planner, allocator, provider, core, mesut, padagonia, sha2, tokio | `MesutExecutor`, `HostVerifier`, `ElciProvider`, `PadagoniaSource`, `LucidPreflight`, `execute` |
+| `colony-cli` | adapters + serde_json | the `colony` binary and the benchmarks |
 
-The layering is strictly `core ← policy/provider ← planner/allocator ← runtime ← cli`.
-No library crate performs I/O, spawns threads, reads clocks or uses `HashMap`
-iteration.
+The layering is strictly
+`core ← policy/provider ← planner/allocator ← runtime ← colony-adapters ← cli`.
+Crates below `colony-adapters` perform no I/O, spawn no threads, read no clocks, and
+do not iterate `HashMap`. The adapter crate is the host boundary and may do all of those.
 
 ## 2. Contracts and graph validation (`colony-core`)
 
@@ -243,11 +245,23 @@ is `Validated` with evidence.
 
 | Trait | Crate | Implemented by | Contract |
 |---|---|---|---|
-| `Mesut` | runtime | execution layer | `submit` returns a handle only if the job was accepted, using idempotent attempt ids. It enforces the contract's budget, immutable snapshot, isolated mutation environment and scope. `cancel` succeeds only once all descendant calls and tools have stopped. |
-| `Verifier` | runtime | trusted host | Runs deterministic gates before any semantic approval. Never treats worker prose as evidence. |
-| `InferenceProvider` | provider | ELCI provider layer | Exposes its `Resource` and runs one `InferenceEnvelope`, which keeps the contract, provider and model in separate typed fields. |
-| `SemanticSource` | core | Padagonia | Returns the `OntologySlice` (relations, locked entities) for an objective. Colony keeps no semantic store. |
-| `Preflight` | core | Lucid Preflight | Returns the `ContextManifest`. Reads and token accounting happen upstream. |
+| `Mesut` | runtime | `colony_adapters::MesutExecutor` | `submit` returns a handle only if the job was accepted, using idempotent attempt ids. It enforces the contract's budget, immutable snapshot, isolated mutation environment and scope. `cancel` succeeds only once all descendant calls and tools have stopped. |
+| `Verifier` | runtime | `colony_adapters::HostVerifier` | Runs deterministic gates before any semantic approval. Never treats worker prose as evidence. |
+| `InferenceProvider` | provider | `colony_adapters::ElciProvider` | Exposes its `Resource` and runs one `InferenceEnvelope`, which keeps the contract, provider and model in separate typed fields. |
+| `SemanticSource` | core | `colony_adapters::PadagoniaSource` | Returns the `OntologySlice` (relations, locked entities) for an objective. Colony keeps no semantic store. |
+| `Preflight` | core | `colony_adapters::LucidPreflight` | Returns the `ContextManifest`. Reads and token accounting happen upstream of planning. |
 
-The CLI's `simulate` implements `Mesut` and `Verifier` with synthetic, clearly labelled
-stand-ins. Real adapters are out of scope for v0.1.x.
+`MesutExecutor` admits each attempt onto a real Mesut runtime (blocking executor only)
+and joins results in `ready()` order, so the colony event log stays deterministic.
+Attempt handles are `{colony}:{unit}:{attempt}`. A second submit of the same handle
+does not run the job again. `ElciProvider` either spawns the host-chosen command in
+the attempt directory or posts to a cleartext OpenAI-compatible
+`/v1/chat/completions` endpoint. `HostVerifier` trusts only artifact bytes on disk:
+`report-schema` and `source-references`. Evidence refs are SHA-256 of those bytes.
+`PadagoniaSource` loads a Padagonia store and keeps an edge only when the objective
+mentions both endpoints. `LucidPreflight` walks `--root`, skips VCS and build
+directories, pins a SHA-256 of the selected files, and counts tokens as bytes / 4.
+It does not link the Lucid repository.
+
+`colony simulate` still implements `Mesut` and `Verifier` with synthetic, clearly
+labelled stand-ins. `colony execute` is the live host loop.

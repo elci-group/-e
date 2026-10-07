@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 //! End-to-end behaviour of the `colony` binary.
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::process::{Command, Output};
 
@@ -53,7 +54,7 @@ fn help_and_version() {
         let o = colony(args);
         assert!(o.status.success());
         assert!(stdout(&o).starts_with(&format!(
-            "Colony (:e) {}\n\nUsage: colony <plan|validate|simulate>",
+            "Colony (:e) {}\n\nUsage: colony <plan|validate|simulate|execute>",
             env!("CARGO_PKG_VERSION")
         )));
     }
@@ -84,6 +85,42 @@ fn plan_example() {
     assert_eq!(v["assignments"].as_array().unwrap().len(), 4);
     assert_eq!(v["plan"]["critical_path_ms"], 2000);
     assert_eq!(v["plan"]["swarms"].as_array().unwrap().len(), 4);
+}
+
+#[test]
+fn execute_example_with_a_local_command() {
+    let root = std::env::temp_dir().join(format!("colony-cli-exec-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(&root).unwrap();
+    let source = "name = \"portability\"\n";
+    std::fs::write(root.join("Cargo.toml"), source).unwrap();
+    let script = root.join("worker.sh");
+    std::fs::write(
+        &script,
+        "#!/bin/sh\nset -eu\npath=$(printf '%s\\n' \"$COLONY_PATHS\" | head -n 1)\nprintf '%s\\n' \"$COLONY_OUTPUTS\" | while IFS= read -r name; do\n  [ -n \"$name\" ] || continue\n  printf '{\"findings\":[{\"reference\":\"%s\",\"detail\":\"observed\"}]}\\n' \"$path\" > \"$COLONY_OUT/$name\"\ndone\n",
+    )
+    .unwrap();
+    let mut mode = std::fs::metadata(&script).unwrap().permissions();
+    mode.set_mode(0o755);
+    std::fs::set_permissions(&script, mode).unwrap();
+    let o = colony(&[
+        "execute",
+        EXAMPLE,
+        "--root",
+        root.to_str().unwrap(),
+        "--command",
+        script.to_str().unwrap(),
+    ]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let v = json(&o);
+    assert_eq!(v["mode"], "execution_complete");
+    assert_eq!(v["snapshot"]["completed"], true);
+    assert_eq!(v["evidence"].as_object().unwrap().len(), 4);
+    assert_eq!(
+        std::fs::read_to_string(root.join("Cargo.toml")).unwrap(),
+        source
+    );
+    let _ = std::fs::remove_dir_all(&root);
 }
 
 #[test]
@@ -122,13 +159,24 @@ fn fails(args: &[&str], stderr_contains: &str) {
 
 #[test]
 fn usage_errors_exit_one() {
-    fails(&["deploy", EXAMPLE], "expected plan, validate or simulate");
-    fails(&["plan"], "expected plan, validate or simulate");
+    fails(
+        &["deploy", EXAMPLE],
+        "expected plan, validate, simulate or execute",
+    );
+    fails(&["plan"], "expected plan, validate, simulate or execute");
     fails(
         &["plan", EXAMPLE, "extra"],
-        "expected plan, validate or simulate",
+        "expected plan, validate, simulate or execute",
     );
-    fails(&["--version", "x"], "expected plan, validate or simulate");
+    fails(
+        &["--version", "x"],
+        "expected plan, validate, simulate or execute",
+    );
+    fails(&["execute", EXAMPLE], "execute requires --root");
+    fails(
+        &["execute", EXAMPLE, "--root", "."],
+        "execute requires --command or --endpoint",
+    );
 }
 
 #[test]

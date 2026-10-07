@@ -1,0 +1,53 @@
+{
+  "cluster_id": "26805886-278a-4805-a5a6-e9ea936c28ba",
+  "version": "0.1.2",
+  "bump": "Patch",
+  "event_count": 1,
+  "started_at": "2026-10-07T14:12:52.372092940Z",
+  "ended_at": "2026-10-07T14:12:52.372092940Z",
+  "diff": {
+    "structural": 0.23959082,
+    "api": 0.403125,
+    "deps": 0.3763889,
+    "runtime": 0.0,
+    "api_breaking": false,
+    "api_added": false,
+    "touched_paths": 10,
+    "api_touches": 2,
+    "api_signatures": 4,
+    "dependency_manifests": 1,
+    "dependency_nodes": 10,
+    "dependency_edges": 9,
+    "runtime_paths": 0,
+    "bundle": 0.0,
+    "parse_metadata": [
+      {
+        "file": "crates/colony-cli/src/main.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      },
+      {
+        "file": "crates/colony-cli/tests/cli.rs",
+        "lang": "Rust",
+        "version": "2015",
+        "parser_used": "Ast",
+        "fallback_used": false,
+        "confidence": 0.8075,
+        "version_match": "inferred"
+      }
+    ],
+    "ast_cache_hits": 2,
+    "ast_cache_misses": 0,
+    "ast_cache_entries": 10
+  },
+  "weight": {
+    "score": 0.28007206,
+    "api_breaking": false,
+    "api_added": false
+  },
+  "air_gapped": false
+}
